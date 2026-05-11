@@ -990,4 +990,3 @@ if __name__ == "__main__":
 
     start(app, 1)
     app.mainloop()
-    print("test")
