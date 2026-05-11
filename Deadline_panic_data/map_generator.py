@@ -171,7 +171,7 @@ if __name__ == "__main__":
     generer_map(9)
     # print(map)
     afficher_map(map)
-    print(map_framed["[5, 5]"].get_id())
+    # print(map_framed["[5, 5]"].get_id())
     # for i in range(9):
     #     generer_map(i+1)
     #     # print(map)
