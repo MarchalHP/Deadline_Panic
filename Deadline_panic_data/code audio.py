@@ -4,6 +4,7 @@ import os
 import random
 from sound_manager import SoundManager
 from PIL import Image, ImageTk
+import tkinter as tk
 
 """fenêtres"""
 app = CTk()
@@ -12,24 +13,25 @@ app.update()
 
 
 """variables"""
-sound_manager = SoundManager()
-son_actif = True
-image_bg    = "mp3 test 2 sans bg.png"
-image_play  = "images/pixels play.png"
-image_pause = "images/pixels pause.png"
-image_favoris = "images/favoris_pixels sansbg.png"
-image_pasfavoris = "images/pas_favoris_bg.png"
-chemin_playlists = "Playlist/chemin_playlist/"
-chemin_bruitages = "Playlist/Bruitages/"
-affichage_lecture = []
-affichage_ecran = ""
-cpt_defilement = 0 
-current_playlist = None
-current_loop = False
-volume_actuel = 70
-transition = False
-favoris = []
-son = {}
+sound_manager           = SoundManager()
+son_actif               = True
+dossier = os.path.dirname(__file__)
+image_bg                = os.path.join(dossier, "Texture\\mp3\\mp3.png")
+image_play              = os.path.join(dossier, "Texture\\mp3\\play.png")
+image_pause             = os.path.join(dossier, "Texture\\mp3\\pause.png")
+image_favoris           = os.path.join(dossier, "Texture\\mp3\\fav.png")
+image_pasfavoris        = os.path.join(dossier, "Texture\\mp3\\no_favoris.png")
+chemin_playlists        = os.path.join(dossier, "Playlist\\muse")
+chemin_bruitages        = os.path.join(dossier, "Playlist\\Bruitages")
+affichage_lecture       = []
+affichage_ecran         = ""
+cpt_defilement          = 0 
+current_playlist        = None
+current_loop            = False
+volume_actuel           = 70
+transition              = False
+favoris                 = []
+son                     = {}
 
 
 """playlists"""
@@ -58,42 +60,24 @@ Playlist_bruitages = {"arme_1":chemin_bruitages+"arme.mp3",
                       "new_game":chemin_bruitages+"new_game.mp3",
                       "new_objet":chemin_bruitages+"new_item.mp3",
                       "points_de_vie":chemin_bruitages+"points_de_vie.mp3"
-                      }
+}
                      
 
+def charger_fichier():
+    dossier = os.path.dirname(__file__)
+    image_bg                = os.path.join(dossier, "Texture\\mp3\\mp3.png")
+    image_play              = os.path.join(dossier, "Texture\\mp3\\play.png")
+    image_pause             = os.path.join(dossier, "Texture\\mp3\\pause.png")
+    image_favoris           = os.path.join(dossier, "Texture\\mp3\\fav.png")
+    image_pasfavoris        = os.path.join(dossier, "Texture\\mp3\\no_favoris.png")
 
-"""images"""
+    chemin_playlists        = os.path.join(dossier, "Playlist\\muse")
+    chemin_bruitages        = os.path.join(dossier, "Playlist\\Bruitages")
+
 def image(chemin_img, size=(50, 50)):
-    img_pil = Image.open(chemin_img).convert("RGBA").resize(size, Image.NEAREST)
+    img_pil = Image.open(chemin_img).convert("RGBA").resize(size, Image.LANCZOS)
     return ImageTk.PhotoImage(img_pil)
-img_play = image(image_play, size=(40, 40))
-img_pause = image(image_pause, size=(40, 40))
-img_favoris = image(image_favoris, size=(40, 40))
-img_pasfavoris = image(image_pasfavoris, size=(40, 40))
 
-bg_image = CTkImage(
-    light_image=Image.open(image_bg),
-    dark_image=Image.open(image_bg),
-    size=(400, 122))
-
-"""img_play = image(
-    light_image=Image.open(image_play),
-    dark_image=Image.open(image_play),
-    size=(25, 25))
-img_pause = image(
-    light_image=Image.open(image_pause),
-    dark_image=Image.open(image_pause),
-    size=(25, 25))
-img_favoris = image(image_favoris,
-    light_image=Image.open(image_favoris),
-    dark_image=Image.open(image_favoris),
-    size=(40,40))
-img_pasfavoris = image(
-    light_image=Image.open(image_pasfavoris),
-    dark_image=Image.open(image_pasfavoris),
-    size=(40, 40))"""
-
-"""fonctions"""
 def btn_volume():
     global son_actif
     if son_actif: 
@@ -126,20 +110,8 @@ def defilement():
 def next_song(event=None):
     if current_playlist and not current_loop:
         change_music(current_playlist)
-        
-"""def change_music(playlist, volume=None):
-    if volume is None:
-        volume = sound_manager.get_volume()
-
-    if volume > 0:
-        new_volume = max(0, volume - 5)
-        sound_manager.setvolume(new_volume)
-        app.after(50, lambda: change_music(playlist, new_volume))
-    else:
-        jouer_son(playlist, False)"""
-        
+              
 def change_music(playlist, volume=None):
-
     global volume_actuel, transition
     transition = True
     print("volume actuel:", volume_actuel)  # ← voir ce qui se passe
@@ -152,19 +124,7 @@ def change_music(playlist, volume=None):
         sound_manager.stopmusic()
         app.after(200, lambda: jouer_son(playlist, False, volume))
         volume_actuel = volume
-      
-        
-"""global volume_actuel
-    if volume is None:
-        volume = volume_actuel
-    if volume > 0:
-        new_volume = max(0, volume - 5)
-        sound_manager.setvolume(new_volume)
-        volume_actuel = new_volume
-        app.after(50, lambda: change_music(playlist, new_volume))
-    else:
-        jouer_son(playlist, False)"""
-        
+              
 def jouer_son(playlist, loop=False, volume=50):
     global affichage_lecture, affichage_ecran, current_loop, current_playlist, son
     son = random.choice(playlist)
@@ -207,30 +167,68 @@ def fermer_app():
     app.destroy()
     os._exit(0)
 
-"""affichage"""
-bg_label = CTkLabel(app, image=bg_image, text="")
-bg_label.place(x=0, y=60)
+def afficher(app):
+    LX = app.winfo_width()
+    LY = app.winfo_height()
+    canvar = tk.Canvas(
+        app,
+        width               = LX,
+        height              = LY,
+        bg                  = "#ffffff",
+        highlightthickness  = 0
+    )
+    canvar.place(x=0, y=0)
+    VX = canvar.winfo_width(),
+    VY = canvar.winfo_height(),
+    bg_image = image(image_play, size=(VX, VY))
+    canvar.create_image(
+        VX//2,
+        VY//2,
+        anchor="center",
+        image=bg_image
+    )
+    canvar._fond = bg_image
+    # bg_label = CTkLabel(app, image=bg_image, text="")
+    # bg_label.place(x=0, y=60)
+    bg_label = canvar.create_image(
+        int((VX//2)+VX*0.01),
+        int((VY//2)+VY*0.01),
+        anchor="nw",
+        image=bg_image
+    )
+    # btn_son = CTkLabel(app, image=img_play, text="", fg_color="transparent", padx=0, pady=0)
+    # btn_son.place(x=60, y=100)
+    btn_son = canvar.create_image(
+        int((VX//2)+VX*0.01),
+        int((VY//2)+VY*0.01),
+        anchor="nw",
+        image=bg_image
+    )
 
-btn_son = CTkLabel(app, image=img_play, text="", fg_color="transparent", padx=0, pady=0)
-btn_son.place(x=60, y=100)
-btn_son.bind("<Button-1>", lambda e: btn_volume())
+    img_play        = image(image_play,         size=(40, 40))
+    img_pause       = image(image_pause,        size=(40, 40))
+    img_favoris     = image(image_favoris,      size=(40, 40))
+    img_pasfavoris  = image(image_pasfavoris,   size=(40, 40))
 
-btn_fav = CTkLabel(app, image=img_pasfavoris, text="")
-btn_fav.place(x=300, y=100)
-btn_fav.bind("<Button-1>", lambda e: btn_favoris())
 
-"""CTkButton(app, image=img_play, text="",
-                    width=20, height=20,
-                    border_width=0,
-                    command=btn_volume)
-btn_son.place(x=60, y=100)"""
 
-lcd_ecran = CTkLabel(app, text="",
-                       font=CTkFont(family="Courier New", size=12),
-                       fg_color="#5c8a3f",
-                       bg_color="#5c8a3f",
-                       text_color="black")
-lcd_ecran.place(x=148, y=109)
+    
+    """affichage"""
+    
+
+    
+    btn_son.bind("<Button-1>", lambda e: btn_volume())
+
+    btn_fav = CTkLabel(app, image=img_pasfavoris, text="")
+    btn_fav.place(x=300, y=100)
+    btn_fav.bind("<Button-1>", lambda e: btn_favoris())
+
+    lcd_ecran = CTkLabel(app, text="",
+                        font=CTkFont(family="Courier New", size=12),
+                        fg_color="#5c8a3f",
+                        bg_color="#5c8a3f",
+                        text_color="black")
+    lcd_ecran.place(x=148, y=109)
 
 """démarrage"""
 print(os.getcwd())
@@ -244,7 +242,3 @@ app.after(5000, lambda: game_mode("epic1"))   # epic1 après 5 secondes
 app.after(15000, lambda: game_mode("epic2"))  # epic2 après 15 secondes
 app.after(25000, lambda: game_mode("epic3"))  # epic3 après 25 secondes
 app.mainloop()
-
-
-import os
-print(os.listdir("Sound manager"))
