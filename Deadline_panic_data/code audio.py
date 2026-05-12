@@ -6,16 +6,10 @@ from sound_manager import SoundManager
 from PIL import Image, ImageTk
 import tkinter as tk
 
-"""fenêtres"""
-app = CTk()
-app.geometry("400x240")
-app.update()
-
-
 """variables"""
 sound_manager           = SoundManager()
 son_actif               = True
-dossier = os.path.dirname(__file__)
+dossier                 = os.path.dirname(__file__)
 image_bg                = os.path.join(dossier, "Texture\\mp3\\mp3.png")
 image_play              = os.path.join(dossier, "Texture\\mp3\\play.png")
 image_pause             = os.path.join(dossier, "Texture\\mp3\\pause.png")
@@ -32,6 +26,7 @@ volume_actuel           = 70
 transition              = False
 favoris                 = []
 son                     = {}
+canvar                  = None
 
 
 """playlists"""
@@ -82,21 +77,25 @@ def btn_volume():
     global son_actif
     if son_actif: 
         sound_manager.setvolume(0)
-        btn_son.configure(image=img_pause)
+        img_pause       = image(image_pause,        size=(40, 40))
+        canvar.itemconfig(btn_son, image=img_pause)
         son_actif = False
     else:
         sound_manager.setvolume(70)
-        btn_son.configure(image=img_play)
+        img_play        = image(image_play,         size=(VX, VY))
+        canvar.itemconfig(btn_son, image=img_play)
         son_actif = True
 
 def btn_favoris():
     global favoris
     if son.get("file") in favoris:
         favoris.remove(son["file"])
-        btn_fav.configure(image=img_pasfavoris)
+        img_pasfavoris  = image(image_pasfavoris,   size=(40, 40))
+        canvar.itemconfig(btn_fav, image=img_pasfavoris)
     else:
         favoris.append(son["file"])
-        btn_fav.configure(image=img_favoris)
+        img_favoris     = image(image_favoris,      size=(40, 40))
+        canvar.itemconfig(btn_fav, image=img_favoris)
         print(favoris)
 
 def defilement():
@@ -168,8 +167,12 @@ def fermer_app():
     os._exit(0)
 
 def afficher(app):
+    global canvar
+    if canvar: canvar.delete()
     LX = app.winfo_width()
     LY = app.winfo_height()
+
+    """canvas initial"""
     canvar = tk.Canvas(
         app,
         width               = LX,
@@ -180,7 +183,9 @@ def afficher(app):
     canvar.place(x=0, y=0)
     VX = canvar.winfo_width(),
     VY = canvar.winfo_height(),
-    bg_image = image(image_play, size=(VX, VY))
+    
+    """image de fond"""
+    bg_image        = image(image_bg, size=(40, 40))
     canvar.create_image(
         VX//2,
         VY//2,
@@ -188,57 +193,53 @@ def afficher(app):
         image=bg_image
     )
     canvar._fond = bg_image
-    # bg_label = CTkLabel(app, image=bg_image, text="")
-    # bg_label.place(x=0, y=60)
-    bg_label = canvar.create_image(
-        int((VX//2)+VX*0.01),
-        int((VY//2)+VY*0.01),
-        anchor="nw",
-        image=bg_image
-    )
-    # btn_son = CTkLabel(app, image=img_play, text="", fg_color="transparent", padx=0, pady=0)
-    # btn_son.place(x=60, y=100)
+
+    """bouton sond"""
+    img_play        = image(image_play, size=(VX, VY))
     btn_son = canvar.create_image(
         int((VX//2)+VX*0.01),
         int((VY//2)+VY*0.01),
         anchor="nw",
-        image=bg_image
+        image=img_play
     )
+    # btn_son.bind("<Button-1>", lambda e: btn_volume())
 
-    img_play        = image(image_play,         size=(40, 40))
-    img_pause       = image(image_pause,        size=(40, 40))
-    img_favoris     = image(image_favoris,      size=(40, 40))
-    img_pasfavoris  = image(image_pasfavoris,   size=(40, 40))
+    """bouton favori"""
+    img_pasfavoris  = image(image_pasfavoris, size=(40, 40))
+    btn_fav = canvar.create_image(
+        int((VX//2)+VX*0.01),
+        int((VY//2)+VY*0.01),
+        anchor="nw",
+        image=img_pasfavoris
+    )
+    # btn_fav.bind("<Button-1>", lambda e: btn_favoris())
 
+    # lcd_ecran = CTkLabel(
+    #     app,
+    #     text        = "",
+    #     font        = CTkFont(family="Courier New", size=12),
+    #     fg_color    = "#5c8a3f",
+    #     bg_color    = "#5c8a3f",
+    #     text_color  = "black"
+    # )
+    # lcd_ecran.place(x=148, y=109)
 
+if __name__ == "__main__":
+    app = CTk()
+    app.geometry("400x240")
+    # app.update()
+    afficher(app)
+    app.mainloop()
 
-    
-    """affichage"""
-    
-
-    
-    btn_son.bind("<Button-1>", lambda e: btn_volume())
-
-    btn_fav = CTkLabel(app, image=img_pasfavoris, text="")
-    btn_fav.place(x=300, y=100)
-    btn_fav.bind("<Button-1>", lambda e: btn_favoris())
-
-    lcd_ecran = CTkLabel(app, text="",
-                        font=CTkFont(family="Courier New", size=12),
-                        fg_color="#5c8a3f",
-                        bg_color="#5c8a3f",
-                        text_color="black")
-    lcd_ecran.place(x=148, y=109)
-
-"""démarrage"""
-print(os.getcwd())
-defilement()
-check_fin_musique()
-"""sound_manager.set_on_end(next_song)
-sound_manager.mediaplayer_onendreached = next_song"""
-app.protocol("WM_DELETE_WINDOW", fermer_app)
-# TESTS - à enlever après
-app.after(5000, lambda: game_mode("epic1"))   # epic1 après 5 secondes
-app.after(15000, lambda: game_mode("epic2"))  # epic2 après 15 secondes
-app.after(25000, lambda: game_mode("epic3"))  # epic3 après 25 secondes
-app.mainloop()
+#     """démarrage"""
+#     print(os.getcwd())
+#     defilement()
+#     check_fin_musique()
+#     """sound_manager.set_on_end(next_song)
+#     sound_manager.mediaplayer_onendreached = next_song"""
+#     app.protocol("WM_DELETE_WINDOW", fermer_app)
+# # TESTS - à enlever après
+# app.after(5000, lambda: game_mode("epic1"))   # epic1 après 5 secondes
+# app.after(15000, lambda: game_mode("epic2"))  # epic2 après 15 secondes
+# app.after(25000, lambda: game_mode("epic3"))  # epic3 après 25 secondes
+# app.mainloop()
