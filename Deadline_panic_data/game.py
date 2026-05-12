@@ -403,7 +403,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
         cle = f"{position_map}"
         if cle not in map_framed:
-            print("pas de frame ici !")
+            popup("Porte fermé", 1000, "yellow")
             if direction == "forward":   position_map[0] += 1
             elif direction == "backward":position_map[0] -= 1
             elif direction == "right":   position_map[1] -= 1

@@ -6,6 +6,7 @@ import random
 import ctypes
 from PIL import Image
 from datetime import datetime
+import code_audio
 # ========== Correction DPI ==========
 try:
     ctypes.windll.user32.SetProcessDPIAware() 
@@ -199,6 +200,7 @@ def menu(app):
         bouton("Load Game", lambda:(clear(), menu_load_game())) .place((LX//20)*1, (LY//10)*5)
         bouton("Setting",   lambda:(clear(), menu_setting()))   .place((LX//20)*1, (LY//10)*7)
         bouton("Leave",     app.destroy, ("Ubuntu", int(LY*0.02), "bold"), "#707070", "#FF0000").place((LX//20)*1, (LY//10)*9)
+        code_audio.afficher(app, pos=[int(LX*0.75), int(LY*0.80)], perce=0.1)
 
     def menu_new_game():
         def register():
