@@ -1,7 +1,7 @@
 {
     "character": 2,
-    "name": "iD10T",
-    "seed": 7419760353,
+    "name": "tr",
+    "seed": 5113860813,
     "difficulty": 3,
     "max_heart": 6,
     "heart": 6,
@@ -11,7 +11,7 @@
     "defense": 2,
     "attaque": 1.5,
     "inventair": [
-        "Latte"
+        "Book"
     ],
     "lv": 1,
     "epic_lv": 0
