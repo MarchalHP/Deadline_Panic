@@ -20,10 +20,10 @@ dossier = os.path.dirname(__file__)
 
 def menu(app):
 
-    LX = app.winfo_width()
-    LY = app.winfo_height()
-    ZEROX = LX//2
-    ZEROY = LY//2
+    LX                      = app.winfo_width()
+    LY                      = app.winfo_height()
+    ZEROX                   = LX//2
+    ZEROY                   = LY//2
     fichier_preset          = os.path.join(dossier, "preset_placement.json")
     with open(fichier_preset, "r", encoding="utf-8") as jason: preset = json.load(jason)
     playlist_menu           = preset["playlists"]["playlist_menu"]
@@ -97,15 +97,16 @@ def menu(app):
             ZERO()
             self.widget = ctk.CTkButton(
                 parent if parent else app,
-                text=text,
-                font=font,
-                width=200,
-                height=50,
-                fg_color="#242424",
-                hover_color="#242424",
-                text_color="white",
-                text_color_disabled="gray",
-                command=command        
+                text                = text,
+                font                = font,
+                width               = 200,
+                height              = 50,
+                fg_color            = "transparent",
+                hover_color         = "#3a3a3a",
+                text_color          = "white",
+                text_color_disabled = "gray",
+                command             = command,
+                border_width        = 0
             )
             self.widget.bind("<Enter>", lambda e: self.widget.configure(text_color=col_out))
             self.widget.bind("<Leave>", lambda e: self.widget.configure(text_color=col_enter))
@@ -205,6 +206,7 @@ def menu(app):
 
     def menu_main():
         ZERO()
+        image(img=os.path.join(os.path.join(dossier, "Texture\\frames\\fond.png")), size=(LX, LY),).place(0,0)
         texte("DeadLine  Panic").place((LX//20)*1, (LY//10)*1)
         bouton("New Game",  lambda:(clear(), menu_new_game()))  .place((LX//20)*1, (LY//10)*3)
         bouton("Load Game", lambda:(clear(), menu_load_game())) .place((LX//20)*1, (LY//10)*5)

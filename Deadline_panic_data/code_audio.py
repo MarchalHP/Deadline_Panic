@@ -29,6 +29,7 @@ playlist_menu           = preset["playlists"]["playlist_menu"]
 playlist_epic1          = preset["playlists"]["playlist_epic"]["playlist_epic1"]
 playlist_epic2          = preset["playlists"]["playlist_epic"]["playlist_epic2"]
 playlist_epic3          = preset["playlists"]["playlist_epic"]["playlist_epic3"]
+playlist_bruitage       = preset["playlists"]["playlist_bruitage"]
 affichage_lecture       = []
 affichage_ecran         = ""
 cpt_defilement          = 0 
@@ -139,12 +140,28 @@ def game_mode(app, mode):
         app.after(500, lambda: sound_manager.setvolume(100))
 
 def bruitage(nom):
-    sound_manager.playsound(Playlist_bruitages[nom])
-       
+    sound_manager.playsound(playlist_bruitage[nom])
+
+def reset():
+    global current_playlist, current_loop, affichage_ecran, affichage_lecture
+    global cpt_defilement, transition, son, canvar, lcd_ecran, parent
+    sound_manager.stop()
+    current_playlist    = None
+    current_loop        = False
+    affichage_ecran     = ""
+    affichage_lecture   = []
+    cpt_defilement      = 0
+    transition          = False
+    son                 = {}
+    canvar              = None
+    lcd_ecran           = None
+    parent              = None
+
+def fermer_app():
+    reset()
+
 def fermer_app():
     sound_manager.stop()
-    app.destroy()
-    os._exit(0)
 
 def afficher(app, pos=[0, 0], perce=0.12, bg_col="#ffffff"):
     global canvar, btn_son, btn_fav, lcd_ecran, parent  # ← ICI en premier, avant tout

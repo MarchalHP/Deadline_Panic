@@ -1,13 +1,14 @@
-import customtkinter as ctk
-from map_generator import generer_map, frame
-from math import ceil
-import os
-import json
-import random
-from PIL import Image, ImageTk
-import tkinter as tk
-from datetime import datetime
-import code_audio
+import  customtkinter   as      ctk
+from    map_generator   import  generer_map, frame
+from    math            import  ceil
+from    PIL             import  Image, ImageTk
+import  tkinter         as      tk
+from    datetime        import  datetime
+import  code_audio
+import  time
+import  os
+import  json
+import  random
 
 TAILLE_CELLULE = 146
 HUD_CELLULE = 150
@@ -36,21 +37,22 @@ direc = "S"
 pause_overlay = None
 settings_overlay = None
 epic = 0
+deff = False
 
 class bouton: 
     def __init__(self, app, text, command, font=("Copperplate Gothic Bold", 10, "bold"),
-            col_enter="white" , col_out="#FFD700"):
+            col_enter="white" , col_out="#FFD700", fg_col="#0d0d1a"):
         self.widget = ctk.CTkButton(
             master                  = app,
             text                    = text,
             font                    = font,
             width                   = 400,
             height                  = 50,
-            fg_color                = "#0d0d1a",
+            fg_color                = fg_col,
             hover_color             = "#0d0d1a",
             text_color              = "white",
             text_color_disabled     = "gray",
-            command                 =command        
+            command                 = command        
         )
         self.widget.bind("<Enter>", lambda e: self.widget.configure(text_color=col_out))
         self.widget.bind("<Leave>", lambda e: self.widget.configure(text_color=col_enter))
@@ -161,6 +163,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     with open(fichier_setting,   "r", encoding="utf-8") as jason : setting  = json.load(jason)
     with open(fichier_instance,  "r", encoding="utf-8") as jason : instance = json.load(jason)
     playlist_menu       = preset["playlists"]["playlist_menu"]
+    derniere_attaque = {"t": 0}
     random.seed(instance["seed"])
     if init_map: map_framed = init_map
     else:map, map_framed = generer_map(lv)
@@ -237,8 +240,49 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         initialisation_img()
         actualiser_frame()
 
+    def game_over():
+        for proj in projectiles_actifs:
+            proj.actif = False
+        projectiles_actifs.clear()
+        app.unbind("<Key>")
+        app.unbind("<KeyRelease>")
+        code_audio.reset()
+        clear()
+
+        fond = tk.Canvas(
+            app,
+            width               = LX,
+            height              = LY,
+            bg                  = "#0d0d1a",
+            highlightthickness  = 0
+        )
+        fond.place(x=0, y=0)
+
+        # Titre "Game Over"
+        fond.create_text(
+            LX // 2,
+            LY * 0.35,
+            text    = "Game Over",
+            fill    = "#FF0000",
+            font    = ("Copperplate Gothic Bold", int(LY * 0.1), "bold"),
+            anchor  = "center"
+        )
+
+        bouton(
+            app         = app,
+            text        = "Quit to title",
+            command     = lambda: quit_to_title(),
+            font        = ("Copperplate Gothic Bold", int(LY * 0.04), "bold"),
+            col_enter   = "white",
+            col_out     = "#FFD700",
+            fg_col      = "#242424"
+        ).place_center(LX * 0.5, LY * 0.6)
+
     def actualiser_hud():
         global hud_canvas
+        if instance["heart"] <= 0:
+            game_over()
+            return
         if hud_canvas : hud_canvas.destroy()
         hud_canvas = tk.Canvas(
             app,
@@ -363,6 +407,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                     position=mob_map[i][1],
                     map_pos=position_map
                 )
+                demarrer_mob(f"{mob_map[i][0]}_{i}")
         canvas = app._canvas_jeu
         if mobs_img:
             for mob_id in mobs_img:canvas.delete(mob_id)
@@ -395,23 +440,23 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
     def change_frame(direction):
         nonlocal position_map, frame_actuel, position_actuel
+        map_L = len(map[0])
+        map_H = len(map)
+        if      direction == "forward"  : position_map = [position_map[0] - 1,  position_map[1]]
+        elif    direction == "backward" : position_map = [position_map[0] + 1,  position_map[1]]
+        elif    direction == "right"    : position_map = [position_map[0],      position_map[1] + 1]
+        elif    direction == "left"     : position_map = [position_map[0],      position_map[1] - 1]
 
-        if direction == "forward":
-            position_map = [position_map[0] - 1, position_map[1]]
-        elif direction == "backward":
-            position_map = [position_map[0] + 1, position_map[1]]
-        elif direction == "right":
-            position_map = [position_map[0], position_map[1] + 1]
-        elif direction == "left":
-            position_map = [position_map[0], position_map[1] - 1]
+        position_map[0] = position_map[0] % map_L
+        position_map[1] = position_map[1] % map_H
 
         cle = f"{position_map}"
         if cle not in map_framed:
             popup("Porte fermé", 1000, "yellow")
-            if direction == "forward":   position_map[0] += 1
-            elif direction == "backward":position_map[0] -= 1
-            elif direction == "right":   position_map[1] -= 1
-            elif direction == "left":    position_map[1] += 1
+            if      direction == "forward":     position_map[0] = (position_map[0] + 1) % map_L
+            elif    direction == "backward":    position_map[0] = (position_map[0] - 1) % map_L
+            elif    direction == "right":       position_map[1] = (position_map[0] - 1) % map_H
+            elif    direction == "left":        position_map[1] = (position_map[0] + 1) % map_H
             return
 
         frame_actuel = map_framed[cle].get_disposition()
@@ -532,6 +577,10 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
     def attaque(position, direction, arm):
         if arm in preset["arms"]:
+            cooldown = 1 / preset["arms"][arm]["vitesse"]
+            temps_ecoule = time.time() - derniere_attaque["t"]
+            if temps_ecoule < cooldown: return
+            derniere_attaque["t"] = time.time()
             cases_attaquer = []
             li, co = position[0], position[1]
             if preset["arms"][arm]["type_attaque"] == "corp_a_corp":
@@ -584,6 +633,11 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                 app.after(tempo_ms, debuff)
             actualiser_hud()
     
+    def defense(onoff):
+        global deff
+        deff = onoff
+        print(deff)
+
     def lancer_projectile(li_depart, co_depart, direction, degats, vitesse, type="Pen"):
         proj = projectile(li_depart, co_depart, direction, degats, vitesse, type)
         projectiles_actifs.append(proj)
@@ -660,6 +714,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
             app.bind("<Key>", action)
             app.bind("<KeyRelease>", relacher)
             return
+        app.unbind("<Key>")
         SCAPE = True
         pause_overlay = []
         fond = tk.Canvas(
@@ -911,7 +966,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         nonlocal position_actuel
         global SCAPE
         touche = event.keysym
-        if touche in touch_push:
+        if touche in touch_push or deff:
             return
         touch_push.add(touche)
         if touche in setting["keys"]:
@@ -951,7 +1006,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                     attaque(position_actuel, direc, instance["inventair"][ITEM_SELECT-1])
                     actualiser_mobs()
                 elif setting["keys"][touche] == "defense":
-                    return
+                    defense(True)
             elif setting["keys"][touche] in ["Select_next_item", "Select_previous_item"]:
                 if setting["keys"][touche] == "Select_next_item":
                     swipe("right")
@@ -966,6 +1021,8 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
     def relacher(event):
         touch_push.discard(event.keysym)
+        if setting["keys"][event.keysym] == "defense":
+            defense(False)
 
     def cal_epic():
         global epic 
@@ -989,10 +1046,75 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         if epique != epic:
             code_audio.game_mode(app, epique)
             epic = epique
-            print(f"nouveau epic {int(epique)}")
-        print("epic app")
         app.after(10000, lambda: cal_epic())
         
+    def attaque_PL(id):
+        if MOBS[id].type_attaque == "corp_a_corp":
+            if deff:
+                instance["heart"] -= max(1, MOBS[id].attaque - instance["defense"])
+            else: 
+                instance["heart"] -= MOBS[id].attaque
+        actualiser_hud()
+
+    def  accessible_mobs(li, co, id_mob):
+        if li < 0 or li >= NB_LI:
+            return False
+        if co < 0 or co >= NB_COL:
+            return False
+        for id in OBJ:
+            if (OBJ[id].position == [li, co] 
+                    and OBJ[id].alive 
+                    and OBJ[id].map_pos == position_map):
+                return False
+        for id in MOBS:
+            if id == id_mob:
+                continue
+            if not MOBS[id].alive or MOBS[id].map_pos != position_map:
+                continue
+            co_autre = int(MOBS[id].position.split(",")[0].strip())
+            li_autre = int(MOBS[id].position.split(",")[1].strip())
+            if li_autre == li and co_autre == co:
+                return False
+        return True
+
+    def demarrer_mob(id):
+        def boucle_mob():
+            if id not in MOBS or not MOBS[id].alive or MOBS[id].map_pos != position_map:
+                return
+            mob = MOBS[id]
+            CO_MOB = int(mob.position.split(",")[0].strip())
+            LI_MOB = int(mob.position.split(",")[1].strip())
+            LI_PL = position_actuel[0]
+            CO_PL = position_actuel[1]
+            distance = abs(LI_MOB - LI_PL) + abs(CO_MOB - CO_PL)
+            if distance <= mob.porter:
+                attaque_PL(id)
+                pass
+            else:
+                DIFL = LI_PL - LI_MOB
+                DIFC = CO_PL - CO_MOB
+                mouvements = []
+                if abs(DIFL) >= abs(DIFC):
+                    if   DIFL > 0: mouvements.append((1,  0))
+                    elif DIFL < 0: mouvements.append((-1, 0))
+                    if   DIFC > 0: mouvements.append((0,  1))
+                    elif DIFC < 0: mouvements.append((0, -1))
+                else:
+                    if   DIFC > 0: mouvements.append((0,  1))
+                    elif DIFC < 0: mouvements.append((0, -1))
+                    if   DIFL > 0: mouvements.append((1,  0))
+                    elif DIFL < 0: mouvements.append((-1, 0))
+                for dli, dco in mouvements:
+                    nouvelle_li = LI_MOB + dli
+                    nouvelle_co = CO_MOB + dco
+                    if accessible_mobs(nouvelle_li, nouvelle_co, id):
+                        MOBS[id].position = f"{nouvelle_co}, {nouvelle_li}"
+                        break
+            actualiser_mobs()
+            delai = int(1000 / mob.speed) if mob.speed > 0 else 99999
+            app.after(delai, boucle_mob)
+        delai_depart = random.randint(0, 500)
+        app.after(delai_depart, boucle_mob)
 
     app.bind("<Key>", action)
     app.bind("<KeyRelease>", relacher)
