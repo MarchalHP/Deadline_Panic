@@ -71,11 +71,16 @@ def image(chemin_img, size=(50, 50)):
 
 def defilement(app):
     global cpt_defilement, lcd_ecran
-    if affichage_ecran:
-        affichage = affichage_ecran[cpt_defilement:] + affichage_ecran[:cpt_defilement]
-        lcd_ecran.configure(text=affichage[:14])
-        cpt_defilement = (cpt_defilement + 1) % len(affichage_ecran)
-    app.after(200, lambda: defilement(parent))
+    if not lcd_ecran: return
+    try:
+        if affichage_ecran:
+            affichage = affichage_ecran[cpt_defilement:] + affichage_ecran[:cpt_defilement]
+            lcd_ecran.configure(text=affichage[:14])
+            cpt_defilement = (cpt_defilement + 1) % len(affichage_ecran)
+        app.after(200, lambda: defilement(parent))
+    except Exception:
+        lcd_ecran = None
+        return
     
 def next_song(event=None):
     if current_playlist and not current_loop:

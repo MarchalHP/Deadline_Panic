@@ -349,7 +349,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         actualiser_mobs()
         actualise_player(canvas) 
         actualiser_hud()
-        # code_audio.afficher(app=app, bg_col="#1A1A2E")
+        code_audio.afficher(app=app, bg_col="#1A1A2E")
 
     def actualiser_mobs():
         global mobs_img, MOBS
