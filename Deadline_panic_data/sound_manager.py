@@ -28,7 +28,7 @@ class SoundManager:
         self.__musicPath = ""
         self.__loop = False
         self.__eventMusicManager = None
-    
+
     def mediaplayer_onendreached(self, event):
         if (__name__ == "__main__"):
             logging.info("Son terminé" + repr(event))

@@ -7,6 +7,7 @@ import random
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime
+import code_audio
 
 TAILLE_CELLULE = 146
 HUD_CELLULE = 150
@@ -34,6 +35,7 @@ projectiles_actifs = []
 direc = "S"
 pause_overlay = None
 settings_overlay = None
+epic = 0
 
 class bouton: 
     def __init__(self, app, text, command, font=("Copperplate Gothic Bold", 10, "bold"),
@@ -158,6 +160,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     with open(chemin_preset,     "r", encoding="utf-8") as jason : preset   = json.load(jason)
     with open(fichier_setting,   "r", encoding="utf-8") as jason : setting  = json.load(jason)
     with open(fichier_instance,  "r", encoding="utf-8") as jason : instance = json.load(jason)
+    playlist_menu       = preset["playlists"]["playlist_menu"]
     random.seed(instance["seed"])
     if init_map: map_framed = init_map
     else:map, map_framed = generer_map(lv)
@@ -176,7 +179,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         position_actuel = ['B', 'T']
         position_actuel[0] = L_ran
         position_actuel[1] = C_ran
-
+    
     def initialisation_img():
         global dic_frame, dic_obj, players, hud_texture, hostile_texture, item_texture
         dic_frame = {}
@@ -345,7 +348,8 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         app._canvas_jeu = canvas
         actualiser_mobs()
         actualise_player(canvas) 
-        actualiser_hud()     
+        actualiser_hud()
+        # code_audio.afficher(app=app, bg_col="#1A1A2E")
 
     def actualiser_mobs():
         global mobs_img, MOBS
@@ -870,7 +874,6 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def save():
         nonlocal instance
         dossier_save = os.path.join(os.path.dirname(__file__), "Save")
-        txt = ""
         if len(os.listdir(dossier_save)) < 6:
             with open(os.path.join(dossier_save, f"{instance['name']}_{datetime.now().strftime('%d-%m-%Y_%Hh%M')}.json"), "w", encoding="utf-8") as jason:
                 json.dump(instance, jason, indent=4)
@@ -964,8 +967,37 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def relacher(event):
         touch_push.discard(event.keysym)
 
+    def cal_epic():
+        global epic 
+        alpha   = 0.1
+        beta    = 0.5
+        gamma   = 0.4
+        nv      = lv
+        nvm     = 9
+        hp      = instance["heart"]
+        hpm     = instance["max_heart"]
+        nbm = 0
+        for mob in MOBS:
+            if MOBS[mob].map_pos == position_actuel:
+                nbm += 1
+            else: continue
+        nbmm    = int(0.17*((lv-1)**2)+2)
+        epik    = alpha*(nv/nvm)+beta*(1-(hp/hpm))+gamma*(nbm/nbmm)
+        if epik < 0.33: epique = 1
+        elif 0.33 <= epik <= 0.66: epique = 2
+        else: epique = 3
+        if epique != epic:
+            code_audio.game_mode(app, epique)
+            epic = epique
+            print(f"nouveau epic {int(epique)}")
+        print("epic app")
+        app.after(10000, lambda: cal_epic())
+        
+
     app.bind("<Key>", action)
     app.bind("<KeyRelease>", relacher)
+    code_audio.jouer_son(playlist=playlist_menu, volume=int(setting["volume"]))
+    cal_epic()
     actualise_zero()
     initialisation_img()
     actualiser_frame()
@@ -974,7 +1006,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 if __name__ == "__main__":
     import ctypes
     try:
-        ctypes.windll.user32.SetProcessDPIAware() 
+        ctypes.windll.user32.SetProcessDPIAware()
         ctypes.windll.shcore.SetProcessDpiAwareness(2)
     except:
         pass

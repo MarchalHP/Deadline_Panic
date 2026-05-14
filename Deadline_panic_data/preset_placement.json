@@ -436,5 +436,118 @@
         "student_pack"      : ["Nothing", "aiki", "redbull"],
         "distributeur"      : ["Nothing", "monster", "redbull"],
         "microonde"         : ["Nothing", "aiki", "pate"]
+    },
+    "playlists"         : {
+        "playlist_menu"     : [
+            {
+                "file"      : "02 Ange Halliwell - test.mp3",
+                "titre"     : "Test",
+                "artiste"   : "Ange Halliwell"
+            },
+            {
+                "file"      : "18 Organ Tapes - KHUSHI.mp3",
+                "titre"     : "Organ Tape",
+                "artiste"   : "KUSHI"
+            },
+            {
+                "file"      : "an1ssa_midi_orchestral_rework_2k20_slowed_instrumental_version.mp3",
+                "titre"     : "an1ssa_midi_orchestral",
+                "artiste"   : "oOryxss"},
+            {
+                "file"      : "Tenhi - Näkin Laulu [1997 version].mp3",
+                "titre"     : "Näkin Laulu",
+                "artiste"   : "Tenhi"},
+            {
+                "file"      : "Obsequiae - Sidhe.mp3",
+                "titre"     : "Sidhe",
+                "artiste"   : "Obsequiae"
+            },
+            {
+                "file"      : "In the house-IN A HEARTBEAT.mp3",
+                "titre"     : "In the house",
+                "artiste"   : "IN A HEARTBEAT"}
+        ],
+        "playlist_epic"    : {
+            "playlist_epic1"    : [
+                {
+                    "file"      : "012-city-Arclite.mp3",
+                    "titre"     : "City",
+                    "artiste"   : "Arclite"
+                },
+                {
+                    "file"      : "Snafu.mp3",
+                    "titre"     : "_+ᐸ(ᐳ_ᐸ)ᐳ+_===**++++++++__[--_ᐳᐳᐳᐳᐳ]}}}",
+                    "artiste"   : "Snafu"
+                },
+                {
+                    "file"      : "Lurk - Oklou.mp3",
+                    "titre"     : "Lurk",
+                    "artiste"   : "Oklou"}, 
+                {
+                    "file"      : "BC - ghost ghoul.mp3",
+                    "titre"     : "BC",
+                    "artiste"   : "ghost ghoul"
+                },
+                {
+                    "file"      : "RJ Pasin - Lobster.mp3",
+                    "artiste"   : "Lobster",
+                    "titre"     : "RJ Pasin"
+                }
+            ],
+            "playlist_epic2"    : [
+                {
+                    "file"      : "Enya-Aniron_Tomorrows_Gone_Remix.mp3",
+                    "titre"     : "Aniron",
+                    "artiste"   : "Tomorrows Gone"
+                },
+                {
+                    "file"      : "Mission-Amon Tobin.mp3",
+                    "titre"     : "Mission",
+                    "artiste"   : "Amon Tobin"
+                },
+                {
+                    "file"      : "09 KABLAM - enlife repeats.mp3",
+                    "titre"     : "enlife repeats",
+                    "artiste"   : "KABLAM"
+                },
+                {
+                    "file"      : "The Dying Voids Signal.mp3",
+                    "titre"     : "The Dying Voids Signal",
+                    "artiste"   : "GHXSTED"
+                },
+                {
+                    "file"      : "Russian Circles Vorel Official Audio.mp3",
+                    "titre"     : "Vorel",
+                    "artiste"   : "Russian Circles"
+                },
+                {
+                    "file"      : "AUTOMATICA Robots Vs.Music Nigel Stanford.mp3",
+                    "titre"     : "AUTOMATICA Robots Vs.Music",
+                    "artiste"   : "Nigel Stanford"
+                }
+            ],
+            "playlist_epic3"    : [
+                {
+                    "file"      : "Autumnal Pyre.mp3",
+                    "titre"     : "Automnial Pyre",
+                    "artiste"   : "Obsequiae"
+                },
+                {
+                    "file"      : "Through The Fire And Flames.mp3",
+                    "titre"     : "Through The Fire And Flames",
+                    "artiste"   : "Dragon Force"
+                },
+                {
+                    "file"      : "Amon Amarth Twilight of the Thunder God.mp3",
+                    "titre"     : "Twilight of the Thunder God",
+                    "artiste"   : "Amon Amarth"
+                },
+                {
+                    "file"      : "Legend B Lost In Love.mp3",
+                    "titre"     : "Lost in Love",
+                    "artiste"   : "Legend B"
+                }
+            ]
+        }
     }
 }

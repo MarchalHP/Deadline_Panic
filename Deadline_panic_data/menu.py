@@ -7,6 +7,7 @@ import ctypes
 from PIL import Image
 from datetime import datetime
 import code_audio
+import sound_manager
 # ========== Correction DPI ==========
 try:
     ctypes.windll.user32.SetProcessDPIAware() 
@@ -23,6 +24,15 @@ def menu(app):
     LY = app.winfo_height()
     ZEROX = LX//2
     ZEROY = LY//2
+    fichier_preset          = os.path.join(dossier, "preset_placement.json")
+    with open(fichier_preset, "r", encoding="utf-8") as jason: preset = json.load(jason)
+    playlist_menu           = preset["playlists"]["playlist_menu"]
+    playlist_epic1          = preset["playlists"]["playlist_epic"]["playlist_epic1"]
+    playlist_epic2          = preset["playlists"]["playlist_epic"]["playlist_epic2"]
+    playlist_epic3          = preset["playlists"]["playlist_epic"]["playlist_epic3"]
+    fich = os.path.join(dossier, "settings.json")
+    with open(fich, "r", encoding="utf-8") as jason : setting = json.load(jason)
+    code_audio.jouer_son(playlist=playlist_menu, loop=True, volume=int(setting["volume"]))
 
     def clear():
         for widget in app.winfo_children():
@@ -200,7 +210,7 @@ def menu(app):
         bouton("Load Game", lambda:(clear(), menu_load_game())) .place((LX//20)*1, (LY//10)*5)
         bouton("Setting",   lambda:(clear(), menu_setting()))   .place((LX//20)*1, (LY//10)*7)
         bouton("Leave",     app.destroy, ("Ubuntu", int(LY*0.02), "bold"), "#707070", "#FF0000").place((LX//20)*1, (LY//10)*9)
-        code_audio.afficher(app, pos=[int(LX*0.75), int(LY*0.80)], perce=0.1)
+        code_audio.afficher(app, pos=[int(LX*0.75), int(LY*0.80)], perce=0.1, bg_col="#242424")
 
     def menu_new_game():
         def register():
@@ -366,6 +376,7 @@ def menu(app):
         def mod_vol(value):
             with open(fich, "r", encoding="utf-8") as jason: setting = json.load(jason)
             setting["volume"] = value
+            code_audio.set_vol(int(value))
             with open(fich, "w", encoding="utf-8") as jason: json.dump(setting, jason, indent=4)
             aff_vol.configure(f"Volume : {int(value)}%")
         slide_volume = slider(0, 100, mod_vol).place(LX*0.05, LY*0.35)
