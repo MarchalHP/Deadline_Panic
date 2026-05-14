@@ -1,13 +1,12 @@
 {
     "character": 2,
-    "name": "iD10T",
-    "seed": 7419760353,
+    "name": "test",
+    "seed": 6037737371,
     "difficulty": 3,
     "max_heart": 6,
     "heart": 6,
     "max_abso": 4,
-    "abso": 4,
-    "speed": 70,
+    "abso": 0,
     "defense": 2,
     "attaque": 1.5,
     "inventair": [

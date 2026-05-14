@@ -225,20 +225,18 @@ def menu(app):
                 "heart"         : 6,
                 "max_abso"      : 2,
                 "abso"          : 0,
-                "speed"         : 10,
                 "defense"       : 0,
                 "attaque"       : 0,
                 "inventair"     : [],
                 "lv"            : 1,
                 "epic_lv"       : 0
             }
-            with open(os.path.join(dossier, "preset_placement.json"), "r") as f : preset_placement = json.load(f)
+            with open(os.path.join(dossier, "preset_placement.json"), "r", encoding="utf-8") as f : preset_placement = json.load(f)
             if choix_character.get() != 0 :
                 parameter["character"]      = choix_character.get()
                 parameter["max_heart"]      = preset_placement["preset_characters"][str(choix_character.get())]["max_heart"]
                 parameter["heart"]          = preset_placement["preset_characters"][str(choix_character.get())]["max_heart"]
                 parameter["max_abso"]       = preset_placement["preset_characters"][str(choix_character.get())]["max_abso"]
-                parameter["speed"]          = preset_placement["preset_characters"][str(choix_character.get())]["speed"]
                 parameter["defense"]        = preset_placement["preset_characters"][str(choix_character.get())]["defense"]
                 parameter["attaque"]        = preset_placement["preset_characters"][str(choix_character.get())]["attaque"]
             if   choix_weapon.get() == 1    : parameter["inventair"].append("Latte")
