@@ -326,7 +326,16 @@ def menu(app):
         ligne_nav = frame_line(pady=int(LY * 0.002))
         f8 = ligne_nav.contenu()
         bouton("back",  lambda:(clear(), menu_main()), ("Ubuntu", LY*0.02, "bold"), "#707070", "#FF0000", parent=f8).pack(int(LX * 0.2), 5, "center", side="left")
-        bouton("Start", lambda:(register(), clear(), level_selection.lv_select_screen(app)), parent=f8).pack(int(LX * 0.2), 5, "center", side="left")
+        bouton(
+            "Start",
+            lambda:(
+                register(),
+                clear(),
+                code_audio.fermer_app(),
+                level_selection.lv_select_screen(app)
+                ),
+            parent=f8
+        ).pack(int(LX * 0.2), 5, "center", side="left")
         
     def menu_load_game():
         ZERO()
@@ -339,7 +348,7 @@ def menu(app):
         def charge_deleted(source):
             os.remove(source)
         def valid_charge(fich):
-            bouton("valide", lambda:(charge_save(fich), clear(), level_selection.lv_select_screen(app))).place(LX*0.8, LY*0.9)
+            bouton("valide", lambda:(charge_save(fich), clear(), code_audio.fermer_app(), level_selection.lv_select_screen(app))).place(LX*0.8, LY*0.9)
         def delete_charge(fich):
             bouton("delete", lambda: (charge_deleted(fich), clear(), menu_load_game())).place_center(LX*0.5, LY*0.9)
 
