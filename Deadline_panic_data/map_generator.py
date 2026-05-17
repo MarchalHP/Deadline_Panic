@@ -3,8 +3,10 @@ import os
 import json
 import copy
 
-map = []
-map_framed = {}
+map             = []
+map_framed      = {}
+finish_frame    = []
+
 
 class frame:
     def __init__(self, position, lv=0):
@@ -32,7 +34,6 @@ class frame:
                     self.disposition[y][x] = obj
                     self.id[y][x] = random.randint(11111, 99999)
                 else: continue
-
     def generate_mobs(self):
         random.seed(self.seed)
         i = random.randint(int(0.17*((self.lv-1)**2)+2), int(0.15*((self.lv-1)**2)+5))
@@ -46,8 +47,7 @@ class frame:
                 self.mobs[random.randint(11111, 99999)] = [mob, case_utiliser]
                 self.case_vide.remove(case_utiliser)
                 i -= 1
-            else: continue
-    
+            else: continue  
     def afficher(self):
         print(self.seed, self.position, self.zone, self.type)
         print(self.disposition)
@@ -72,13 +72,14 @@ def set_doss():
     seed = data["seed"]
 
 def generer_map(lv):
-    global map, map_framed
+    global map, map_framed, finish_frame
     set_doss()
-    row_num = 11 #toujour impair
-    col_num = 11 #toujour impair
-    map = []
-    map_framed = {}
-    nb_frames = int((0.5*(lv**2))+20)
+    row_num         = 11 #toujour impair
+    col_num         = 11 #toujour impair
+    map             = []
+    map_framed      = {}
+    finish_frame    = []
+    nb_frames       = int((0.5*(lv**2))+20)
     for i in range(row_num):
         col = []
         for j in range(col_num):
@@ -138,43 +139,39 @@ def generer_map(lv):
             map_framed[f"{position}"] = frame(position, lv)
             map_framed[f"{position}"].generate_frame()
             map_framed[f"{position}"].generate_mobs()
-            # map_framed[f"{position}"].afficher()
-            # print(map_framed[f"{position}"].get_mob())
+            finish_frame = position
         else: continue
-        #print(position, directions)
-        #print(map)
-        # print(nb_frames)
-        #print(frames_placed)
-        # print(map_framed)
-    return map, map_framed
+    return map, map_framed, finish_frame
 
 def afficher_map(map):
     VERT  = "\033[92m"
     ROUGE = "\033[91m"
+    JAUNE = "\033[33m"
     RESET = "\033[0m"
-    nb_uns  = 0
-    nb_zero = 0
+    nb_uns      = 0
+    nb_zero     = 0
+    Y = 0
     for ligne in map:
         ligne_affichee = ""
+        X = 0
         for case in ligne:
-            if case == 1:
+            if finish_frame == [Y, X]:
                 nb_uns  += 1
-                ligne_affichee += VERT  + "1 " + RESET
+                ligne_affichee += JAUNE  + "1 " + RESET
             else:
-                nb_zero += 1
-                ligne_affichee += ROUGE + "0 " + RESET
+                if case == 1:
+                    nb_uns  += 1
+                    ligne_affichee += VERT  + "1 " + RESET
+                else:
+                    nb_zero += 1
+                    ligne_affichee += ROUGE + "0 " + RESET
+            X += 1
+        Y += 1
         print(ligne_affichee)
-    # print(f"\n{VERT}Nombre de 1 : {nb_uns}{RESET}")
-    # print(f"{ROUGE}Nombre de 0 : {nb_zero}{RESET}")
 
 if __name__ == "__main__":
-    generer_map(9)
-    # print(map)
-    afficher_map(map)
-    # print(map_framed["[5, 5]"].get_id())
-    # for i in range(9):
-    #     generer_map(i+1)
-    #     # print(map)
-    #     afficher_map(map)
-    #     # print(map_framed)
-    #     print(f"level {i+1}")
+    for i in range(9):
+        generer_map(i+1)
+        afficher_map(map)
+        print(finish_frame)
+        print(f"level {i+1}")
