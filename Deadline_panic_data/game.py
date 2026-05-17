@@ -10,34 +10,28 @@ import  os
 import  json
 import  random
 
-TAILLE_CELLULE = 146
-HUD_CELLULE = 150
-COULEUR_GRILLE   = "#dd14cc"
-COULEUR_BORD     = "#000000"
-COULEUR_JOUEUR   = "#00FF88"
-COULEUR_INTERDIT = "#df0d0d"
-COULEUR_VIDE   = "transparent"
-MODIF = 150
-FRAME_SIZE = (16*MODIF, 9*MODIF)
-CASE_SIZE = (TAILLE_CELLULE, TAILLE_CELLULE)
-PLAYER_SIZE = (TAILLE_CELLULE, int(TAILLE_CELLULE*1.5))
-PL = 0
-ED = None
-SCAPE = False
-ITEM_SELECT = 1
-hud_canvas = None
-touch_push = set()
-mobs_img = []
-obj_img = []
-MOBS = {}
-OBJ = {}
-ITEMS = []
-projectiles_actifs = []
-direc = "S"
-pause_overlay = None
-settings_overlay = None
-epic = 0
-deff = False
+TAILLE_CELLULE      = 146
+MODIF               = 150
+FRAME_SIZE          = (16*MODIF, 9*MODIF)
+CASE_SIZE           = (TAILLE_CELLULE, TAILLE_CELLULE)
+PLAYER_SIZE         = (TAILLE_CELLULE, int(TAILLE_CELLULE*1.5))
+PL                  = 0
+ED                  = None
+SCAPE               = False
+ITEM_SELECT         = 1
+hud_canvas          = None
+touch_push          = set()
+mobs_img            = []
+obj_img             = []
+MOBS                = {}
+OBJ                 = {}
+ITEMS               = []
+projectiles_actifs  = []
+direc               = "S"
+pause_overlay       = None
+settings_overlay    = None
+epic                = 0
+deff                = False
 
 class bouton: 
     def __init__(self, app, text, command, font=("Copperplate Gothic Bold", 10, "bold"),
@@ -1051,9 +1045,18 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def attaque_PL(id):
         if MOBS[id].type_attaque == "corp_a_corp":
             if deff:
-                instance["heart"] -= max(1, MOBS[id].attaque - instance["defense"])
+                damage = max(1, MOBS[id].attaque - instance["defense"])
             else: 
-                instance["heart"] -= MOBS[id].attaque
+                damage = MOBS[id].attaque
+            if instance["abso"] > 0:
+                if instance["abso"] >= damage:
+                    instance["abso"] -= damage
+                    damage = 0
+                else:
+                    damage -= instance["abso"]
+                    instance["abso"] = 0
+            if damage > 0:
+                instance["heart"] -= damage
         actualiser_hud()
 
     def  accessible_mobs(li, co, id_mob):
