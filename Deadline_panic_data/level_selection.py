@@ -128,7 +128,16 @@ def lv_select_screen(app):
                     widget.destroy()
                 def retour_menu():
                     menu.menu(app)
-                game.start(app, numero_niveau, on_quit=retour_menu)
+                def retour_selection():
+                    for widget in app.winfo_children():
+                        widget.destroy()
+                    lv_select_screen(app)
+                game.start(
+                    app,
+                    lv                  = numero_niveau,
+                    on_quit             = retour_menu,
+                    on_level_complete   = retour_selection
+                )
             else: return
         else: return
 

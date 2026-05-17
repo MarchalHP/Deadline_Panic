@@ -10,9 +10,7 @@
     "defense": 2,
     "attaque": 1.5,
     "inventair": [
-        "Book",
-        "Pen",
-        "Latte"
+        "Book"
     ],
     "lv": 9,
     "epic_lv": 0

@@ -142,7 +142,7 @@ class projectile:
         self.actif      = True
         self.image_ref  = None
 
-def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on_quit=None):
+def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on_quit=None, on_level_complete = None):
     dossier = os.path.dirname(__file__)
     chemin_preset       = os.path.join(dossier, "preset_placement.json")
     fichier_setting     = os.path.join(dossier, "settings.json")
@@ -160,7 +160,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     derniere_attaque = {"t": 0}
     random.seed(instance["seed"])
     if init_map: map_framed = init_map
-    else:map, map_framed = generer_map(lv)
+    else:map, map_framed, finish_frame = generer_map(lv)
     frame_actuel = map_framed[f"{position_map}"].get_disposition()
     mob_map = map_framed[f"{position_map}"].get_mob()
     if position_frame : position_actuel = position_frame
@@ -242,6 +242,69 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         app.unbind("<KeyRelease>")
         code_audio.reset()
         clear()
+        fond = tk.Canvas(
+            app,
+            width               = LX,
+            height              = LY,
+            bg                  = "#0d0d1a",
+            highlightthickness  = 0
+        )
+        fond.place(x=0, y=0)
+        fond.create_text(
+            LX // 2,
+            LY * 0.35,
+            text    = "Game Over",
+            fill    = "#FF0000",
+            font    = ("Copperplate Gothic Bold", int(LY * 0.1), "bold"),
+            anchor  = "center"
+        )
+        bouton(
+            app         = app,
+            text        = "Quit to title",
+            command     = lambda: quit_to_title(),
+            font        = ("Copperplate Gothic Bold", int(LY * 0.04), "bold"),
+            col_enter   = "white",
+            col_out     = "#FFD700",
+            fg_col      = "#242424"
+        ).place_center(LX * 0.57, LY * 0.6)
+
+    def level_complete():
+        for proj in projectiles_actifs:
+            proj.actif = False
+        projectiles_actifs.clear()
+        app.unbind("<Key>")
+        app.unbind("<KeyRelease>")
+        code_audio.reset()
+        clear()
+
+        def aller_selection():
+                for proj in projectiles_actifs:
+                    proj.actif = False
+                projectiles_actifs.clear()
+                app.unbind("<Key>")
+                app.unbind("<KeyRelease>")
+                global PL, ED, SCAPE, ITEM_SELECT, hud_canvas
+                global touch_push, mobs_img, obj_img, MOBS, OBJ, ITEMS, direc
+                global pause_overlay, settings_overlay
+                PL               = 0
+                ED               = None
+                SCAPE            = False
+                ITEM_SELECT      = 1
+                hud_canvas       = None
+                touch_push       = set()
+                mobs_img         = []
+                obj_img          = []
+                MOBS             = {}
+                OBJ              = {}
+                ITEMS            = []
+                direc            = "S"
+                pause_overlay    = None
+                settings_overlay = None
+                clear()
+                if on_level_complete:
+                    on_level_complete()
+                elif on_quit:
+                    on_quit()
 
         fond = tk.Canvas(
             app,
@@ -251,26 +314,35 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
             highlightthickness  = 0
         )
         fond.place(x=0, y=0)
-
-        # Titre "Game Over"
         fond.create_text(
             LX // 2,
             LY * 0.35,
-            text    = "Game Over",
-            fill    = "#FF0000",
-            font    = ("Copperplate Gothic Bold", int(LY * 0.1), "bold"),
+            text    = f"Level {lv} Complete !",
+            fill    = "#00FF88",
+            font    = ("Copperplate Gothic Bold", int(LY * 0.05), "bold"),
             anchor  = "center"
         )
-
-        bouton(
+        lvselec = bouton(
             app         = app,
-            text        = "Quit to title",
-            command     = lambda: quit_to_title(),
+            text        = "Level Selection",
+            command     = lambda: aller_selection(),
             font        = ("Copperplate Gothic Bold", int(LY * 0.04), "bold"),
             col_enter   = "white",
-            col_out     = "#FFD700",
-            fg_col      = "#242424"
-        ).place_center(LX * 0.5, LY * 0.6)
+            col_out     = "#FFD700"
+        )
+        savnquit = bouton(
+            app         = app,
+            text        = "Save and quit to title",
+            command     = lambda: save(),
+            font        = ("Copperplate Gothic Bold", int(LY*.04), "bold"),
+            col_enter   = "white",
+            col_out     = "#FFD700"
+        )
+        if lv == 9:
+            savnquit.place_center   (LX*0.57, LY*0.7)
+        else:
+            lvselec.place_center    (LX*0.57, LY*0.6)
+            savnquit.place_center   (LX*0.57, LY*0.7)
 
     def actualiser_hud():
         global hud_canvas
@@ -959,7 +1031,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def action(event):
         nonlocal position_actuel
         global SCAPE
-        touche = event.keysym
+        touche   = event.keysym
         if touche in touch_push or deff:
             return
         touch_push.add(touche)
@@ -1012,11 +1084,14 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                 menu_escape(SCAPE)
             else:
                 menu_escape(SCAPE)
+        elif touche == "n":
+            level_complete()
 
     def relacher(event):
         touch_push.discard(event.keysym)
-        if setting["keys"][event.keysym] == "defense":
-            defense(False)
+        if event.keysym in setting["keys"]:
+            if setting["keys"][event.keysym] == "defense":
+                defense(False)
 
     def cal_epic():
         global epic 
@@ -1059,7 +1134,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                 instance["heart"] -= damage
         actualiser_hud()
 
-    def  accessible_mobs(li, co, id_mob):
+    def accessible_mobs(li, co, id_mob):
         if li < 0 or li >= NB_LI:
             return False
         if co < 0 or co >= NB_COL:
