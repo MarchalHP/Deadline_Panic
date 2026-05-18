@@ -5,4 +5,4 @@ liste des Librairies a installer
 - all in one       => `pip install customtkinter Pillow python-vlc`
 - verif            => `pip list`
 - maj              => `pip install --upgrade customtkinter Pillow python-vlc`
-- **Note il faut le logiciel VLC installer pour que la librairies python fonctionne**
+- ** **Note il faut le logiciel VLC installer pour que la librairies python fonctionne** **
