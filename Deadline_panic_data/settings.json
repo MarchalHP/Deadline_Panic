@@ -13,7 +13,7 @@
         "Right": "right",
         "Left": "left"
     },
-    "volume": 0,
+    "volume": 60.24305555555556,
     "keys": {
         "z": "forward",
         "s": "backward",

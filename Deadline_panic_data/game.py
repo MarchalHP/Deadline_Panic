@@ -278,6 +278,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
         app.unbind("<Key>")
         app.unbind("<KeyRelease>")
         code_audio.reset()
+        code_audio.bruitage(preset["playlists"]["playlist_bruitage"]["game_over"])
         clear()
         fond = tk.Canvas(
             app,
@@ -692,10 +693,12 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                     if i.type in preset["arms"] and i.type in instance["inventair"]: pass
                     else: instance["inventair"].append(i.type)
                     i.recup()
+                    code_audio.bruitage(preset["playlists"]["playlist_bruitage"]["new_item"])
             actualiser_hud()
 
     def attaque(position, direction, arm):
         if arm in preset["arms"]:
+            code_audio.bruitage(random.choice(preset["playlists"]["playlist_bruitage"][f"{arm}"]))
             cooldown = 1 / preset["arms"][arm]["vitesse"]
             temps_ecoule = time.time() - derniere_attaque["t"]
             if temps_ecoule < cooldown: return
@@ -1263,6 +1266,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                 instance["heart"] -= damage
                 dernier_coup_recu["t"] = time.time()
                 flash_invul()
+        code_audio.bruitage(random.choice(preset["playlists"]["playlist_bruitage"]["player_damage"]))
         actualiser_hud()
 
     def accessible_mobs(li, co, id_mob):

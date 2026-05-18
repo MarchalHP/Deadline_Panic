@@ -140,7 +140,8 @@ def game_mode(app, mode):
         app.after(500, lambda: sound_manager.setvolume(100))
 
 def bruitage(nom):
-    sound_manager.playsound(playlist_bruitage[nom])
+    chemin = os.path.join(chemin_bruitages, nom)
+    sound_manager.playsound(chemin)
 
 def reset():
     global current_playlist, current_loop, affichage_ecran, affichage_lecture

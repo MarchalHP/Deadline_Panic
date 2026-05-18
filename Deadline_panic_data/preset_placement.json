@@ -541,9 +541,33 @@
             ]
         },
         "playlist_bruitage" : {
-            "porte" : "Door.mp3",
-            "bic"   : "arme_arrow.mp3",
-            "latte" : "arme_sword.mp3"
+            "Book"          : [
+                "hit_book_1.mp3",
+                "hit_book_2.mp3",
+                "hit_book_1.mp3",
+                "hit_book_4.mp3",
+                "hit_book_5.mp3"
+            ],
+            "Pen"           : [
+                "hit_pen_1.mp3",
+                "hit_pen_2.mp3",
+                "hit_pen_3.mp3",
+                "hit_pen_4.mp3",
+                "hit_pen_5.mp3"
+            ],
+            "Latte"         : [
+                "hit_latte_1.mp3",
+                "hit_latte_2.mp3",
+                "hit_latte_3.mp3",
+                "hit_latte_4.mp3",
+                "hit_latte_5.mp3"
+            ],
+            "player_damage" : [
+                "hit_PL_1.mp3",
+                "hit_PL_2.mp3"
+            ],
+            "new_item"  : "new_item.mp3",
+            "game_over" : "game_over.mp3"
         }
     }
 }
