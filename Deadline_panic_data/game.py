@@ -87,11 +87,12 @@ class entity:
 
 class hostile(entity):
     def __init__(self, type, position, id, map_pos):
-        with open(os.path.join(os.path.dirname(__file__), "preset_placement.json"),     "r", encoding="utf-8") as jason : preset_class   = json.load(jason)
-        max_heart = preset_class["mobs"][type]["max_heart"]
+        with open(os.path.join(os.path.dirname(__file__), "preset_placement.json"), "r", encoding="utf-8") as jason : preset_class = json.load(jason)
+        with open(os.path.join(os.path.dirname(__file__), "Save\\instance.json"),   "r", encoding="utf-8") as jason : instance_class = json.load(jason)
+        max_heart           = preset_class["mobs"][type]["max_heart"]           * (instance_class["difficulty"])//2
         super().__init__(max_heart, position, map_pos, type, id)
         self.speed          = preset_class["mobs"][self.type]["speed"]
-        self.attaque        = preset_class["mobs"][self.type]["attaque"]
+        self.attaque        = preset_class["mobs"][self.type]["attaque"]        * instance_class["difficulty"]
         self.type_attaque   = preset_class["mobs"][self.type]["type_attaque"]
         self.porter         = preset_class["mobs"][self.type]["porter"]
     
@@ -142,7 +143,8 @@ class projectile:
         self.actif      = True
         self.image_ref  = None
 
-def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on_quit=None, on_level_complete = None):
+def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_quit=None, on_level_complete = None):
+    global MOBS, OBJ, ITEMS
     dossier = os.path.dirname(__file__)
     chemin_preset       = os.path.join(dossier, "preset_placement.json")
     fichier_setting     = os.path.join(dossier, "settings.json")
@@ -158,9 +160,43 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     with open(fichier_instance,  "r", encoding="utf-8") as jason : instance = json.load(jason)
     playlist_menu       = preset["playlists"]["playlist_menu"]
     derniere_attaque = {"t": 0}
+    dernier_coup_recu   = {"t": 0}
+    INVUL_DUREE         = 2.0 * 1/instance["difficulty"]
     random.seed(instance["seed"])
-    if init_map: map_framed = init_map
-    else:map, map_framed, finish_frame = generer_map(lv)
+    if "MOBS" in init_map     :
+        for cle, data in init_map["MOBS"].items():
+            mob = hostile(
+                type     = data["type"],
+                position = data["position"],
+                id       = data["id"],
+                map_pos  = data["map_pos"]
+            )
+            mob.alive = data["alive"]
+            mob.heart = data["heart"]
+            MOBS[cle] = mob
+    if "OBJ" in init_map      :
+        for cle, data in init_map["OBJ"].items():
+            o = obj(
+                type      = data["type"],
+                position  = data["position"],
+                id        = data["id"],
+                map_pos   = data["map_pos"],
+                max_heart = data["heart"]   # on remet le bon nb de PV
+            )
+            o.alive = data["alive"]
+            o.heart = data["heart"]
+            OBJ[cle] = o
+    if "ITEMS" in init_map    :
+        for data in init_map["ITEMS"]:
+            ITEMS.append(
+                item(
+                    type     = data["type"],
+                    position = data["position"],
+                    map_pos  = data["map_pos"]
+                )
+            )
+    map, map_framed, finish_frame = generer_map(lv)
+    if not position_map : position_map = [5, 5]
     frame_actuel = map_framed[f"{position_map}"].get_disposition()
     mob_map = map_framed[f"{position_map}"].get_mob()
     if position_frame : position_actuel = position_frame
@@ -464,6 +500,14 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def actualiser_mobs():
         global mobs_img, MOBS
         nonlocal mob_map
+        try:
+            canvas = app._canvas_jeu
+        except AttributeError:
+            return
+        try:
+            canvas.winfo_id()
+        except Exception:
+            return
         mob_map = map_framed[f"{position_map}"].get_mob()
         for i in mob_map:
             if f"{mob_map[i][0]}_{i}" not in MOBS:
@@ -508,6 +552,7 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         nonlocal position_map, frame_actuel, position_actuel
         map_L = len(map[0])
         map_H = len(map)
+        position_map_avant = [position_map[0], position_map[1]]
         if      direction == "forward"  : position_map = [position_map[0] - 1,  position_map[1]]
         elif    direction == "backward" : position_map = [position_map[0] + 1,  position_map[1]]
         elif    direction == "right"    : position_map = [position_map[0],      position_map[1] + 1]
@@ -516,13 +561,14 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         position_map[0] = position_map[0] % map_L
         position_map[1] = position_map[1] % map_H
 
+        if position_map == [finish_frame[1], finish_frame[0]]:
+            level_complete()
+
         cle = f"{position_map}"
         if cle not in map_framed:
             popup("Porte fermé", 1000, "yellow")
-            if      direction == "forward":     position_map[0] = (position_map[0] + 1) % map_L
-            elif    direction == "backward":    position_map[0] = (position_map[0] - 1) % map_L
-            elif    direction == "right":       position_map[1] = (position_map[0] - 1) % map_H
-            elif    direction == "left":        position_map[1] = (position_map[0] + 1) % map_H
+            position_map[0] = position_map_avant[0]
+            position_map[1] = position_map_avant[1]
             return
 
         frame_actuel = map_framed[cle].get_disposition()
@@ -608,6 +654,8 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
     def accessible(L , C):
         nonlocal mob_map
+        if f"{position_map}" not in map_framed:
+            return False
         mob_map = map_framed[f"{position_map}"].get_mob()
         if L < 0 or L >= NB_LI:return False
         if C < 0 or C >= NB_COL:return False
@@ -680,7 +728,6 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
         elif arm in preset["items"]:
             instance["heart"]   = min(instance["heart"] + preset["items"][arm]["heart"], instance["max_heart"])
             instance["abso"]    = min(instance["abso"]  + preset["items"][arm]["abso"],  instance["max_abso"])
-            instance["speed"]   += preset["items"][arm]["speed"]
             instance["defense"] += preset["items"][arm]["defense"]
             instance["attaque"] += preset["items"][arm]["attaque"]
             swipe("right")
@@ -688,11 +735,9 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
             actualiser_hud()
             if preset["items"][arm]["tempo"] != -1:
                 tempo_ms        = preset["items"][arm]["tempo"] * 1000
-                speed_bonus     = preset["items"][arm]["speed"]
                 defense_bonus   = preset["items"][arm]["defense"]
                 attaque_bonus   = preset["items"][arm]["attaque"]
-                def debuff(s=speed_bonus, d=defense_bonus, a=attaque_bonus):
-                    instance["speed"]   -= s
+                def debuff(d=defense_bonus, a=attaque_bonus):
                     instance["defense"] -= d
                     instance["attaque"] -= a
                     actualiser_hud()
@@ -702,7 +747,6 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def defense(onoff):
         global deff
         deff = onoff
-        print(deff)
 
     def lancer_projectile(li_depart, co_depart, direction, degats, vitesse, type="Pen"):
         proj = projectile(li_depart, co_depart, direction, degats, vitesse, type)
@@ -994,6 +1038,40 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
 
     def save():
         nonlocal instance
+        OBJ_state   = {}
+        for cle, o in OBJ.items():
+            OBJ_state[cle] = {
+                "alive"    : o.alive,
+                "heart"    : o.heart,
+                "type"     : o.type,
+                "id"       : o.id,
+                "position" : o.position,
+                "map_pos"  : o.map_pos
+            }
+        instance["init_map"]["OBJ"]     = OBJ_state
+        MOBS_state  = {}
+        for cle, m in MOBS.items():
+            MOBS_state[cle] = {
+                "alive"    : m.alive,
+                "heart"    : m.heart,
+                "type"     : m.type,
+                "id"       : m.id,
+                "position" : m.position,
+                "map_pos"  : m.map_pos
+            }
+        instance["init_map"]["MOBS"]    = MOBS_state
+        ITEMS_state = []
+        for i in ITEMS:
+            ITEMS_state.append(
+                {
+                    "type"    : i.type,
+                    "position": i.position,
+                    "map_pos" : i.map_pos
+                }
+            )
+        instance["init_map"]["ITEMS"]   = ITEMS_state
+        instance["position_frame"]      = position_actuel
+        instance["position_map"]        = position_map
         dossier_save = os.path.join(os.path.dirname(__file__), "Save")
         if len(os.listdir(dossier_save)) < 6:
             with open(os.path.join(dossier_save, f"{instance['name']}_{datetime.now().strftime('%d-%m-%Y_%Hh%M')}.json"), "w", encoding="utf-8") as jason:
@@ -1117,7 +1195,31 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
             epic = epique
         app.after(10000, lambda: cal_epic())
         
+    def flash_invul():
+        duree_ms    = int(INVUL_DUREE * 1000)
+        intervalle  = 100
+        nb_flashs   = duree_ms // intervalle
+        compteur    = {"n": 0}
+        def _flash():
+            try:
+                canvas = app._canvas_jeu
+                canvas.winfo_id()
+            except Exception:
+                return
+            if compteur["n"] >= nb_flashs:
+                actualise_player(canvas)
+                return
+            if compteur["n"] % 2 == 0:
+                canvas.delete(PL)
+            else:
+                actualise_player(canvas)
+            compteur["n"] += 1
+            app.after(intervalle, _flash)
+        _flash()
+
     def attaque_PL(id):
+        temps_ecoule = time.time() - dernier_coup_recu["t"]
+        if temps_ecoule < INVUL_DUREE: return     
         if MOBS[id].type_attaque == "corp_a_corp":
             if deff:
                 damage = max(1, MOBS[id].attaque - instance["defense"])
@@ -1132,6 +1234,8 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
                     instance["abso"] = 0
             if damage > 0:
                 instance["heart"] -= damage
+                dernier_coup_recu["t"] = time.time()
+                flash_invul()
         actualiser_hud()
 
     def accessible_mobs(li, co, id_mob):
@@ -1158,6 +1262,11 @@ def start(app, lv=1, position_frame=None, position_map=[5, 5], init_map=None, on
     def demarrer_mob(id):
         def boucle_mob():
             if id not in MOBS or not MOBS[id].alive or MOBS[id].map_pos != position_map:
+                return
+            try:
+                canvas = app._canvas_jeu
+                canvas.winfo_id()
+            except Exception:
                 return
             mob = MOBS[id]
             CO_MOB = int(mob.position.split(",")[0].strip())

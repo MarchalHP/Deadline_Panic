@@ -217,19 +217,21 @@ def menu(app):
     def menu_new_game():
         def register():
             parameter = {
-                "character"     : 2,
-                "name"          : "iD10T",
-                "seed"          : 1234567890,
-                "difficulty"    : 1,
-                "max_heart"     : 6,
-                "heart"         : 6,
-                "max_abso"      : 2,
-                "abso"          : 0,
-                "defense"       : 0,
-                "attaque"       : 0,
-                "inventair"     : [],
-                "lv"            : 1,
-                "epic_lv"       : 0
+                "character"         : 2,
+                "name"              : "iD10T",
+                "seed"              : 1234567890,
+                "difficulty"        : 1,
+                "max_heart"         : 6,
+                "heart"             : 6,
+                "max_abso"          : 2,
+                "abso"              : 0,
+                "defense"           : 0,
+                "attaque"           : 0,
+                "inventair"         : [],
+                "lv"                : 1,
+                "init_map"          : {},
+                "position_frame"    : None,
+                "position_map"      : None
             }
             with open(os.path.join(dossier, "preset_placement.json"), "r", encoding="utf-8") as f : preset_placement = json.load(f)
             if choix_character.get() != 0 :
@@ -289,11 +291,11 @@ def menu(app):
         choix_dificult = ctk.IntVar(value=0)
         ligne_radio_dificulter = frame_line(pady=LY*0.002)
         f6 = ligne_radio_dificulter.contenu()
-        choice_buton("Normal", 1, choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
-        choice_buton("Difficile", 2, choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
-        choice_buton("Expert", 3, choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
-        choice_buton("Calvaire", 4, choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
-        choice_buton("Tourment", 5, choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
+        choice_buton("Normal",      1,      choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
+        choice_buton("Difficile",   1.5,    choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
+        choice_buton("Expert",      2,      choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
+        choice_buton("Calvaire",    4,      choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
+        choice_buton("Tourment",    5,      choix_dificult, parent=f6).pack(int(LX*0.04), 5, "center", side="left")
         ligne_nom = frame_line(pady=int(LY * 0.05))
         f7 = ligne_nom.contenu()
         enter_name = enter("Votre nom...", parent=f7)
@@ -358,9 +360,12 @@ def menu(app):
             if i == "instance.json": continue
             if i.endswith(".json"):
                 fich = os.path.join(dossier_save, i)
-                stats = os.stat(fich)
-                with open(fich, "r", encoding="utf-8") as jason:
-                    data = json.load(jason)
+                try:
+                    stats = os.stat(fich)
+                    with open(fich, "r", encoding="utf-8") as jason:
+                        data = json.load(jason)
+                except json.JSONDecodeError:
+                    print(f"Save corrompu : {i}")
                 date = datetime.fromtimestamp(stats.st_mtime).strftime("%d/%m/%Y %H:%M")
                 dic_save[i] = bouton(
                     f"{data["name"]} - {date}",

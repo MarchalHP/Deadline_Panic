@@ -61,7 +61,7 @@ class frame:
         return self.mobs
     def get_id(self):
         return self.id
-
+    
 def set_doss():
     global preset_placement, data, seed
     dossier = os.path.dirname(__file__)

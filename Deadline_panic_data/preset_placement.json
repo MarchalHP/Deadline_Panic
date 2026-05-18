@@ -294,7 +294,7 @@
     "mobs"              : {
         "prof"          : {
             "max_per_frame" : 1,
-            "max_heart"     : 6,
+            "max_heart"     : 3,
             "speed"         : 2,
             "attaque"       : 2,
             "type_attaque"  : "corp_a_corp",
@@ -302,7 +302,7 @@
         },
         "etudiant"      : {
             "max_per_frame" : -1,
-            "max_heart"     : 4,
+            "max_heart"     : 2,
             "speed"         : 5,
             "attaque"       : 1,
             "type_attaque"  : "corp_a_corp",
@@ -310,7 +310,7 @@
         },
         "robot"         : {
             "max_per_frame" : -1,
-            "max_heart"     : 4,
+            "max_heart"     : 2,
             "speed"         : 3,
             "attaque"       : 1,
             "type_attaque"  : "corp_a_corp",
@@ -318,7 +318,7 @@
         },
         "imprimante"    : {
             "max_per_frame" : 2,
-            "max_heart"     : 8,
+            "max_heart"     : 4,
             "speed"         : 0,
             "attaque"       : 2,
             "type_attaque"  : "corp_a_corp",
@@ -377,47 +377,41 @@
         "redbull"   : {
             "heart"     : 0,
             "abso"      : 0,
-            "speed"     : 1,
             "defense"   : 0,
-            "attaque"   : 0,
+            "attaque"   : 0.5,
             "tempo"     : 120
         },
         "aiki"      : {
             "heart"     : 0,
-            "abso"      : 0,
-            "speed"     : 0,
-            "defense"   : 1,
+            "abso"      : 1,
+            "defense"   : 0,
             "attaque"   : 0,
             "tempo"     : 120
         },
         "cofee"     : {
             "heart"     : 0,
             "abso"      : 0,
-            "speed"     : 0,
-            "defense"   : 0,
-            "attaque"   : 1,
+            "defense"   : 1,
+            "attaque"   : 0,
             "tempo"     : 120
         },
         "monster"   : {
-            "heart"     : 1,
-            "abso"      : 1,
-            "speed"     : 1,
-            "defense"   : 1,
-            "attaque"   : 1,
+            "heart"     : 4,
+            "abso"      : 4,
+            "defense"   : 2,
+            "attaque"   : 2,
             "tempo"     : 60
         },
         "sandwish"  : {
-            "heart"     : 0,
-            "abso"      : 1,
-            "speed"     : 0,
+            "heart"     : 1,
+            "abso"      : 2,
             "defense"   : 0,
             "attaque"   : 0,
             "tempo"     : -1
         },
         "pate"      : {
-            "heart"     : 1,
-            "abso"      : 0,
-            "speed"     : 0,
+            "heart"     : 2,
+            "abso"      : 1,
             "defense"   : 0,
             "attaque"   : 0,
             "tempo"     : -1
@@ -426,12 +420,12 @@
     "loot_table"        : {
         "table"             : ["Nothing"],
         "chaise"            : ["Nothing"],
-        "sac_abandonner"    : ["Nothing", "Latte", "Pen", "sandwish", "Book"],
-        "imprimante_3d"     : ["Nothing"],
-        "pc"                : ["Nothing"],
-        "bibliothèque"      : ["Book"],
+        "sac_abandonner"    : ["Nothing", "sandwish", "pate"],
+        "imprimante_3d"     : ["Nothing", "Latte"],
+        "pc"                : ["Nothing", "Pen"],
+        "bibliothèque"      : ["Nothing", "Book"],
         "student_pack"      : ["Nothing", "aiki", "redbull"],
-        "distributeur"      : ["Nothing", "monster", "redbull"],
+        "distributeur"      : ["Nothing", "monster", "redbull", "cofee"],
         "microonde"         : ["Nothing", "aiki", "pate"]
     },
     "playlists"         : {

@@ -135,6 +135,9 @@ def lv_select_screen(app):
                 game.start(
                     app,
                     lv                  = numero_niveau,
+                    position_frame      = instance["position_frame"],
+                    position_map        = instance["position_map"],
+                    init_map            = instance["init_map"],
                     on_quit             = retour_menu,
                     on_level_complete   = retour_selection
                 )
