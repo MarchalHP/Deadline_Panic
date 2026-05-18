@@ -163,8 +163,9 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
     dernier_coup_recu   = {"t": 0}
     INVUL_DUREE         = 2.0 * 1/instance["difficulty"]
     random.seed(instance["seed"])
-    if "MOBS" in init_map     :
-        for cle, data in init_map["MOBS"].items():
+    init_map_lv = init_map.get(str(lv), {})
+    if "MOBS" in init_map_lv    :
+        for cle, data in init_map_lv["MOBS"].items():
             mob = hostile(
                 type     = data["type"],
                 position = data["position"],
@@ -174,8 +175,8 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
             mob.alive = data["alive"]
             mob.heart = data["heart"]
             MOBS[cle] = mob
-    if "OBJ" in init_map      :
-        for cle, data in init_map["OBJ"].items():
+    if "OBJ" in init_map_lv     :
+        for cle, data in init_map_lv["OBJ"].items():
             o = obj(
                 type      = data["type"],
                 position  = data["position"],
@@ -186,8 +187,8 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
             o.alive = data["alive"]
             o.heart = data["heart"]
             OBJ[cle] = o
-    if "ITEMS" in init_map    :
-        for data in init_map["ITEMS"]:
+    if "ITEMS" in init_map_lv   :
+        for data in init_map_lv["ITEMS"]:
             ITEMS.append(
                 item(
                     type     = data["type"],
@@ -361,7 +362,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
         lvselec = bouton(
             app         = app,
             text        = "Level Selection",
-            command     = lambda: aller_selection(),
+            command     = lambda: (save(quit=False), aller_selection()),
             font        = ("Copperplate Gothic Bold", int(LY * 0.04), "bold"),
             col_enter   = "white",
             col_out     = "#FFD700"
@@ -377,6 +378,9 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
         if lv == 9:
             savnquit.place_center   (LX*0.57, LY*0.7)
         else:
+            if instance["lv"] == lv: instance["lv"] = lv + 1
+            with open(fichier_instance, "w", encoding="utf-8") as jason:
+                json.dump(instance, jason, indent=4)
             lvselec.place_center    (LX*0.57, LY*0.6)
             savnquit.place_center   (LX*0.57, LY*0.7)
 
@@ -563,6 +567,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
 
         if position_map == [finish_frame[1], finish_frame[0]]:
             level_complete()
+            return
 
         cle = f"{position_map}"
         if cle not in map_framed:
@@ -1036,8 +1041,10 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
             app.bind("<KeyRelease>", relacher)
             return
 
-    def save():
+    def save(quit=True):
         nonlocal instance
+        if str(lv) not in instance["init_map"]:
+            instance["init_map"][str(lv)] = {}
         OBJ_state   = {}
         for cle, o in OBJ.items():
             OBJ_state[cle] = {
@@ -1048,7 +1055,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                 "position" : o.position,
                 "map_pos"  : o.map_pos
             }
-        instance["init_map"]["OBJ"]     = OBJ_state
+        instance["init_map"][str(lv)]["OBJ"]    = OBJ_state
         MOBS_state  = {}
         for cle, m in MOBS.items():
             MOBS_state[cle] = {
@@ -1059,7 +1066,7 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                 "position" : m.position,
                 "map_pos"  : m.map_pos
             }
-        instance["init_map"]["MOBS"]    = MOBS_state
+        instance["init_map"][str(lv)]["MOBS"]   = MOBS_state
         ITEMS_state = []
         for i in ITEMS:
             ITEMS_state.append(
@@ -1069,14 +1076,15 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                     "map_pos" : i.map_pos
                 }
             )
-        instance["init_map"]["ITEMS"]   = ITEMS_state
-        instance["position_frame"]      = position_actuel
-        instance["position_map"]        = position_map
+        instance["init_map"][str(lv)]["ITEMS"]  = ITEMS_state
+        instance["position_frame"]              = {str(lv) : position_actuel}
+        instance["position_map"]                = {str(lv) : position_map}
         dossier_save = os.path.join(os.path.dirname(__file__), "Save")
         if len(os.listdir(dossier_save)) < 6:
             with open(os.path.join(dossier_save, f"{instance['name']}_{datetime.now().strftime('%d-%m-%Y_%Hh%M')}.json"), "w", encoding="utf-8") as jason:
                 json.dump(instance, jason, indent=4)
-            quit_to_title([popup("Game saved", 3000, "green")])
+            if quit:
+                quit_to_title([popup("Game saved", 3000, "green")])
         else: popup("backup failed \n too many backup", 5000, "red")
     
     def quit_to_title(exp=[]):
@@ -1162,8 +1170,6 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
                 menu_escape(SCAPE)
             else:
                 menu_escape(SCAPE)
-        elif touche == "n":
-            level_complete()
 
     def relacher(event):
         touch_push.discard(event.keysym)
@@ -1182,14 +1188,35 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
         hpm     = instance["max_heart"]
         nbm = 0
         for mob in MOBS:
-            if MOBS[mob].map_pos == position_actuel:
+            if MOBS[mob].alive and MOBS[mob].map_pos == position_map:
                 nbm += 1
-            else: continue
         nbmm    = int(0.17*((lv-1)**2)+2)
         epik    = alpha*(nv/nvm)+beta*(1-(hp/hpm))+gamma*(nbm/nbmm)
-        if epik < 0.33: epique = 1
-        elif 0.33 <= epik <= 0.66: epique = 2
-        else: epique = 3
+        marge   = 0.05
+        if      epic == 1:
+            if epik > 0.33 + marge:
+                epique = 2 if epik <= 0.66 + marge else 3
+            else:
+                epique = 1
+        elif    epic == 2:
+            if epik < 0.33 - marge:
+                epique = 1
+            elif epik > 0.66 + marge:
+                epique = 3
+            else:
+                epique = 2
+        elif    epic == 3:
+            if epik < 0.66 - marge:
+                epique = 2 if epik >= 0.33 - marge else 1
+            else:
+                epique = 3
+        else:
+            if epik < 0.33:
+                epique = 1
+            elif 0.33 <= epik <= 0.66:
+                epique = 2
+            else:
+                epique = 3
         if epique != epic:
             code_audio.game_mode(app, epique)
             epic = epique

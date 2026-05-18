@@ -132,12 +132,19 @@ def lv_select_screen(app):
                     for widget in app.winfo_children():
                         widget.destroy()
                     lv_select_screen(app)
+                pos_frame = None
+                pos_map   = None
+                if isinstance(instance["position_frame"], dict):
+                    pos_frame = instance["position_frame"].get(str(numero_niveau), None)
+                if isinstance(instance["position_map"], dict):
+                    pos_map = instance["position_map"].get(str(numero_niveau), None)
+                init_map = instance.get("init_map", {})
                 game.start(
                     app,
                     lv                  = numero_niveau,
-                    position_frame      = instance["position_frame"],
-                    position_map        = instance["position_map"],
-                    init_map            = instance["init_map"],
+                    position_frame      = pos_frame,
+                    position_map        = pos_map,
+                    init_map            = init_map,
                     on_quit             = retour_menu,
                     on_level_complete   = retour_selection
                 )
