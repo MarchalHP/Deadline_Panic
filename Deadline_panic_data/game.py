@@ -1193,9 +1193,12 @@ def start(app, lv=1, position_frame=None, position_map=None, init_map={}, on_qui
         for mob in MOBS:
             if MOBS[mob].alive and MOBS[mob].map_pos == position_map:
                 nbm += 1
+        if nbm == 0:
+            app.after(10000, lambda: cal_epic())
+            return
         nbmm    = int(0.17*((lv-1)**2)+2)
         epik    = alpha*(nv/nvm)+beta*(1-(hp/hpm))+gamma*(nbm/nbmm)
-        marge   = 0.05
+        marge   = 0.1
         if      epic == 1:
             if epik > 0.33 + marge:
                 epique = 2 if epik <= 0.66 + marge else 3
