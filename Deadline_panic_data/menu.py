@@ -437,9 +437,24 @@ def menu(app):
         bouton("back", lambda:(clear(), menu_main()), ("Ubuntu", LY*0.02, "bold"), "#707070", "#FF0000").place(LX*0.03, LY*0.9)
 
     def Credit_screen():
-        Titre_Credit = texte("Credit").pack(None, 20, "center")
-        credit = texte("voici les credit", ("Copperplate Gothic Bold", 24, "bold")).pack(None, 40, "center")
-        bouton_back = bouton("back", lambda:(clear(), menu_setting()), ("Ubuntu", 16, "bold"), "#707070", "#FF0000").place(20, 750)
+        Titre_Credit = texte("Credit", ("Ubuntu", LY*0.05, "bold")).pack(None, 20, "center")
+        credit = texte(
+            "Horus Plancq Marchal        Programmer\n"
+            "Leila Chakkara        Team manager\n"
+            "Quentin Hordies        Graphiste\n"
+            "Léon        Team support\n"
+            "\n"
+            "Toutes les personnes impliquées dans le projet à l'initial ont été\n"
+            "fortement impliquées dans sa réussite (sauf une)\n" \
+            "\n"
+            "Merci à Claude Anthropic pour son soutien et son aide sur le projet.\n"
+            "\n"
+            "Merci à AMENRA de nous avoir accompagnés durant les longues heures de développement."
+            "\n"
+            "Toute similitude avec toute autre œuvre vidéoludique est tout à fait fortuite.",
+            ("consolas", LY*0.03, "bold")
+        ).pack(None, 40, "center")
+        bouton_back = bouton("back", lambda:(clear(), menu_setting()), ("Ubuntu", LY*0.02, "bold"), "#707070", "#FF0000").place(LX*0.03, LY*0.9)
 
     menu_main()
     app.mainloop()
