@@ -13,7 +13,7 @@
         "Right": "right",
         "Left": "left"
     },
-    "volume": 60.24305555555556,
+    "volume": 62.673611111111114,
     "keys": {
         "z": "forward",
         "s": "backward",
@@ -21,8 +21,8 @@
         "q": "left",
         "k": "Attack",
         "o": "defense",
-        "t": "Select_next_item",
-        "y": "Select_previous_item",
+        "&": "Select_next_item",
+        "\u00e9": "Select_previous_item",
         "Up": "forward",
         "Down": "backward",
         "Right": "right",
