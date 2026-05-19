@@ -90,14 +90,14 @@ def next_song(event=None):
 def change_music(app, playlist, volume=None):
     global volume_actuel, transition
     transition = True
-    print("volume actuel:", volume_actuel)  # ← voir ce qui se passe
+    # print("volume actuel:", volume_actuel)  # ← voir ce qui se passe
     if volume_actuel > 0:
         volume_actuel = max(0, volume_actuel - 5)
         sound_manager.setvolume(volume_actuel)
 
         app.after(50, lambda: change_music(app, playlist, volume))
     else:
-        print("STOP ET NOUVELLE MUSIQUE")  # ← voir si on arrive ici
+        # print("STOP ET NOUVELLE MUSIQUE")  # ← voir si on arrive ici
         sound_manager.stopmusic()
         app.after(200, lambda: jouer_son(playlist, False, volume))
         volume_actuel = volume
