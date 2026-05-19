@@ -449,9 +449,13 @@ def menu(app):
             "\n"
             "Merci à Claude Anthropic pour son soutien et son aide sur le projet.\n"
             "\n"
-            "Merci à AMENRA de nous avoir accompagnés durant les longues heures de développement."
+            "Merci à AMENRA de nous avoir accompagnés durant les longues heures de développement.\n"
             "\n"
-            "Toute similitude avec toute autre œuvre vidéoludique est tout à fait fortuite.",
+            "Toute similitude avec toute autre œuvre vidéoludique est tout à fait fortuite.\n"
+            "\n"
+            "Merci à Linus, CHVE, Max Verstappen, Gabe Newelle, et Cristopher Nolan d'exister\n"
+            "\n"
+            "\n",
             ("consolas", LY*0.03, "bold")
         ).pack(None, 40, "center")
         bouton_back = bouton("back", lambda:(clear(), menu_setting()), ("Ubuntu", LY*0.02, "bold"), "#707070", "#FF0000").place(LX*0.03, LY*0.9)
